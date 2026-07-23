@@ -1,0 +1,141 @@
+{
+  "typography": {
+    "font_family": {
+      "primary": "'Manrope', 'Montserrat', sans-serif"
+    },
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1]",
+      "h2": "text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-[1.15]",
+      "h3": "text-2xl sm:text-3xl font-bold text-white",
+      "h4": "text-xl font-semibold text-white",
+      "body": "text-base text-[#B7C0CC] font-medium leading-relaxed",
+      "small_label": "text-xs font-bold uppercase tracking-[0.15em] text-[#0A84FF]"
+    }
+  },
+  "colors": {
+    "background": {
+      "main": "#0E1116",
+      "gradient_subtle": "bg-gradient-to-br from-[#0E1116] via-[#11151A] to-[#0E1116]"
+    },
+    "surfaces": {
+      "card_base": "#151A22",
+      "card_elevated": "#1B2028",
+      "header_glass": "rgba(14, 17, 22, 0.75)"
+    },
+    "accents": {
+      "blue_primary": "#0A84FF",
+      "cyan_neon": "#00A3FF"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#B7C0CC",
+      "muted": "#8A94A6"
+    },
+    "lines_dividers": {
+      "accent": "rgba(10, 132, 255, 0.35)",
+      "subtle": "rgba(255, 255, 255, 0.08)"
+    },
+    "glows": {
+      "blue_ambient": "rgba(10, 132, 255, 0.2)",
+      "cyan_intense": "rgba(0, 163, 255, 0.5)"
+    }
+  },
+  "visual_enhancers": {
+    "hover_glow_card": "hover:shadow-[0_0_20px_rgba(10,132,255,0.15)] hover:border-[#0A84FF]/40 transition-all duration-300",
+    "glassmorphism": "backdrop-blur-xl bg-[#0E1116]/80 border-b border-[#0A84FF]/20",
+    "button_glow": "shadow-[0_0_15px_rgba(10,132,255,0.4)] hover:shadow-[0_0_25px_rgba(0,163,255,0.6)]",
+    "pcb_trace_pattern": "Use raw SVG lines with 90-degree and 45-degree angled paths. Set stroke to 'rgba(10,132,255,0.35)' (or a linear gradient from transparent to #0A84FF). Add small filled circles (r='3' fill='#00A3FF') at the joints. Animate the 'pathLength' from 0 to 1 with Framer Motion on scroll."
+  },
+  "component_patterns": {
+    "header": {
+      "style": "sticky top-0 z-50 backdrop-blur-xl bg-[#0E1116]/80 border-b border-[#0A84FF]/20 py-4",
+      "behavior": "Mobile hamburger uses a standard slide-down or full-screen overlay menu. Links must scroll to anchors."
+    },
+    "cards": {
+      "image_card": "bg-[#151A22] rounded-2xl overflow-hidden border border-white/5 relative group. Image gets scale-105 on hover. Overlay with bg-gradient-to-t from-[#151A22] to-transparent.",
+      "icon_card": "bg-[#1B2028] p-8 rounded-2xl border border-white/10 hover:border-[#0A84FF]/40 hover:shadow-[0_0_20px_rgba(10,132,255,0.15)] transition-all duration-300. Icon wrapper gets subtle blue glow.",
+      "build_card": "bg-[#151A22] rounded-2xl p-4 md:p-6 border border-white/10 hover:border-[#0A84FF]/50 flex flex-col gap-4 group. Pre-fill form CTA button included."
+    },
+    "buttons": {
+      "primary": "bg-[#0A84FF] text-white font-bold py-3 px-6 rounded-lg shadow-[0_0_15px_rgba(10,132,255,0.4)] hover:shadow-[0_0_25px_rgba(0,163,255,0.6)] hover:bg-[#00A3FF] transition-all active:scale-95",
+      "secondary": "bg-transparent text-[#0A84FF] font-bold py-3 px-6 rounded-lg border border-[#0A84FF]/50 hover:bg-[#0A84FF]/10 transition-all"
+    },
+    "forms": {
+      "input": "bg-[#0E1116] border border-white/10 text-white rounded-lg px-4 py-3 placeholder-[#B7C0CC]/50 focus:outline-none focus:border-[#0A84FF] focus:ring-1 focus:ring-[#0A84FF] transition-colors"
+    },
+    "logo_recreation": "Recreate strictly in SVG/JSX: Flex container. Text 'ПК' in white bold. Text 'ТУТ' in #0A84FF, surrounded by a rounded rectangle (border-2 border-[#0A84FF] rounded-md px-1 ml-1 drop-shadow-[0_0_5px_rgba(10,132,255,0.8)])."
+  },
+  "grids_and_layouts": {
+    "container": "w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "section_padding": "py-24 sm:py-32",
+    "hero_layout": "grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[85vh] pt-32",
+    "services_grid": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6",
+    "benefits_bento": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6. Make the first and last cards col-span-1 md:col-span-2 or similar asymmetrical bento treatment to avoid boring symmetry.",
+    "process_4_step": "Relative positioning. Grid cols-1 md:grid-cols-4 gap-8. Background absolute SVG for PCB connecting line traversing through the 4 steps."
+  },
+  "motion": {
+    "scroll_reveal": {
+      "initial": "{ opacity: 0, y: 30 }",
+      "whileInView": "{ opacity: 1, y: 0 }",
+      "viewport": "{ once: true, margin: '-100px' }",
+      "transition": "{ duration: 0.6, ease: 'easeOut' }"
+    },
+    "stagger_children": {
+      "container": "variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }}",
+      "child": "variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}"
+    },
+    "pcb_line_draw": "variants={{ hidden: { pathLength: 0 }, visible: { pathLength: 1, transition: { duration: 1.5, ease: 'easeInOut' } } }}"
+  },
+  "accessibility": {
+    "contrast": "Ensure all text against #0E1116 meets minimum 4.5:1 ratio. The secondary text #B7C0CC passes against #0E1116.",
+    "focus_states": "All inputs and buttons must have visible focus rings using focus-visible:ring-2 focus-visible:ring-[#0A84FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0E1116].",
+    "forms": "Include aria-labels for all form fields and error states if invalid."
+  },
+  "image_urls": {
+    "hero_pc": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/cb408720-8b84-4d7f-9577-adc2944d3d92/images/3d8e1e53cff13668af972ea61456e7f9f0be966abe176d0c911d1f063e470ab8.jpeg",
+      "description": "Hero section gaming PC image"
+    },
+    "what_we_do_components": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/cb408720-8b84-4d7f-9577-adc2944d3d92/images/92d73458b97eea23cf3c6ef625df26e46d49bb2e23eb98367771d23003e95e4e.jpeg",
+      "description": "Image for one of the 'What we do' large cards"
+    },
+    "what_we_do_service": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/cb408720-8b84-4d7f-9577-adc2944d3d92/images/f4c4ba6c0618499e150e58e66834960b8997a2802381f474b1efd6f6b98ddf73.jpeg",
+      "description": "Image for one of the 'What we do' large cards"
+    },
+    "build_home": {
+      "url": "https://images.unsplash.com/photo-1696710257827-75e2e5954059?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA0MTJ8MHwxfHNlYXJjaHwzfHxnYW1pbmclMjBwYyUyMHJnYiUyMGNhc2V8ZW58MHx8fHwxNzg0ODA2NjU1fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Домашний (Home PC)"
+    },
+    "build_gaming": {
+      "url": "https://images.unsplash.com/photo-1632749042303-7f7a18ed6ff0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA0MTJ8MHwxfHNlYXJjaHw0fHxnYW1pbmclMjBwYyUyMHJnYiUyMGNhc2V8ZW58MHx8fHwxNzg0ODA2NjU1fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Игровой (Gaming PC)"
+    },
+    "build_workstation": {
+      "url": "https://images.pexels.com/photos/15109454/pexels-photo-15109454.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Рабочая станция (Workstation)"
+    },
+    "build_office": {
+      "url": "https://images.unsplash.com/photo-1626218174358-7769486c4b79?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA0MTJ8MHwxfHNlYXJjaHwxfHxnYW1pbmclMjBwYyUyMHJnYiUyMGNhc2V8ZW58MHx8fHwxNzg0ODA2NjU1fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Офисный (Office PC)"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Ensure all text is in Russian per the problem statement requirements.",
+    "Implement a hidden /admin route accessible only via a token 'X-Admin-Token' input. Build a dashboard with a dark on-brand theme and a data table for leads (with status toggles).",
+    "For the Lead Form (#zayavka), implement a +7 phone mask and a select dropdown with specific choices: сборка ПК, апгрейд, диагностика, чистка, установка Windows, консультация.",
+    "Integrate a Yandex Map iframe for the #kontakty section.",
+    "Use lucide-react for all iconography (services, benefits, micro-interactions).",
+    "Use Framer Motion to create a unified scrolling experience, paying specific attention to the PCB-trace SVG line in the 'Как мы работаем' section."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic outputs. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Do not use generic centered layouts. Leverage asymmetry, Bento grids, and off-center alignments.",
+    "Ensure generous spacing; apply 2-3x more padding than usual.",
+    "No purple AI-slop gradients. Stick purely to the defined #0E1116 graphite background and #0A84FF neon cyan/blue accent structure.",
+    "All interactive elements MUST include a data-testid attribute to facilitate robust automated testing (e.g., data-testid='submit-lead-button').",
+    "Never use pure transparent backgrounds over content for Headers; strictly use the defined glassmorphism.",
+    "Add 'data-testid' to all buttons, links, inputs, and interactive map/form elements."
+  ]
+}
