@@ -1,0 +1,69 @@
+{
+  "summary": "End-to-end backend + frontend testing for ПК ТУТ landing site. 17/17 backend pytest tests pass. Frontend nav, builds prefill, services prefill, lead form validation/submission, admin login (wrong+correct token), admin PATCH toggle, Yandex map, and mobile menu all verified. Found & fixed one CSS overflow bug (PCBConnector SVG).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "PCBConnector (components/PCBTrace.jsx)",
+        "issue": "Decorative SVG lacked width constraint; caused ~456px horizontal overflow at 768px viewport (scrollW=1224 vs clientW=768). Fixed by adding w-full class. Verified fixed.",
+        "selector": "svg.absolute.inset-x-0.top-8.hidden.md:block",
+        "priority": "MEDIUM-FIXED"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Header preview (SEO)",
+        "issues": ["document.documentElement.lang reports 'en' and title 'Emergent | Fullstack App' at runtime, but /public/index.html correctly declares lang='ru' and Russian title/meta. This is caused by Emergent preview injection (emergent-main.js) — expected preview behavior, will be correct in production build. Not a real bug."]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "None blocking. Optional: keep in mind the SEO SSR/preview injection may hide the correct Russian lang/title in preview mode — verify in production build if SEO matters."
+  ],
+  "critical_code_review_comments": [
+    "Backend server.py: clean, uses Literal for service/status, UUID ids, excludes _id from responses, PATCH uses find_one_and_update with projection — no ObjectId leaks. Good.",
+    "VK notification silently skipped when env vars empty — verified: lead creation succeeded 8x with VK vars unset. Errors also swallowed via try/except in helper.",
+    "Frontend LeadForm auto-formats phone perfectly to '+7 (XXX) XXX-XX-XX' and validates client-side before POST. Comment/service prefill via CustomEvent works for all 4 build cards and 6 service cards (sborka, podbor, diagnostika, chistka, apgrade, windows).",
+    "Admin page correctly clears localStorage on 401 response and shows Russian error 'Неверный токен...'. Login persists via localStorage['pktut-admin-token'].",
+    "No DELETE endpoint for leads — TEST_-prefixed data cannot be auto-cleaned. Consider adding admin DELETE for /api/leads/{id} in future."
+  ],
+  "updated_files": [
+    "/app/frontend/src/components/PCBTrace.jsx (added w-full to PCBConnector svg)",
+    "/app/backend/tests/backend_test.py (new pytest file)"
+  ],
+  "success_rate": {"backend": "100% (17/17)", "frontend": "100% (all critical flows verified)"},
+  "test_credentials": "Admin token: pktut2025admin (from /app/memory/test_credentials.md, matches backend/.env ADMIN_TOKEN)",
+  "seed_data_creation": "Created ~14 TEST_-prefixed leads in Mongo `leads` collection via API tests and Playwright submission. No DELETE endpoint exists so they persist; safe since preview env.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend fully passing via pytest. Frontend flows verified via Playwright. The overflow fix at 768px (PCBConnector w-full) has been applied. Preview injection changes html lang/title at runtime — do not treat as bug. Admin flow requires localStorage-based token; you can pre-set via page.evaluate.",
+  "verified_flows": [
+    "GET /api/openapi.json 200",
+    "POST /api/leads valid → 201, UUID id, ISO created_at, status=new",
+    "POST /api/leads validation: empty name → 422, whitespace name → 422, short phone → 422, invalid service → 422",
+    "GET /api/leads: no token → 401, wrong token → 401, correct → 200 sorted DESC and no _id leak",
+    "PATCH /api/leads/{id}: no/wrong token → 401, valid toggle new↔processed → 200, nonexistent → 404, invalid status → 422",
+    "VK notification silently skipped without VK_TOKEN/VK_PEER_ID; lead creation unaffected",
+    "Landing sections: #glavnaya #sborki #uslugi #preimushchestva #zayavka #kontakty all present",
+    "Header nav-link-* clicks scroll correctly (note: no nav-link-zayavka in NAV_LINKS by design — header CTA button handles that)",
+    "Build cards (home/gaming/workstation/office): CTA prefills service='сборка ПК' and comment 'Интересует «<build>».'",
+    "Service cards (6): CTA prefills correct service option (sborka→сборка ПК, podbor→консультация, diagnostika→диагностика, chistka→чистка, apgrade→апгрейд, windows→установка Windows). service-card-noutbuki/videokarty/consoli exist",
+    "Lead form validation: empty name shows 'Укажите имя', incomplete phone shows 'Введите телефон полностью'",
+    "Phone auto-format: '9991234567' → '+7 (999) 123-45-67'",
+    "Successful submit shows lead-form-success with 'Заявка отправлена!' and 'Мы свяжемся с вами в ближайшее время.'",
+    "Admin /admin: wrong token shows admin-login-error with 'Неверный токен...' and stays on login form",
+    "Admin correct token: token saved to localStorage['pktut-admin-token'], admin-leads-table renders with 17 rows, status toggle button changes new↔processed via PATCH",
+    "Yandex map iframe present with 'yandex.ru/map-widget/v1' + encoded 'Энгельс, площадь Ленина, 20'; contacts-route-button href starts with https://yandex.ru/maps/",
+    "Sticky header data-testid='site-header' present; header-cta-button scrolls to #zayavka",
+    "Mobile 390px: mobile-menu-toggle opens mobile-menu-panel; mobile-nav-link-* clickable",
+    "Horizontal overflow: no overflow at 375, 768 (after fix), 1440"
+  ]
+}
