@@ -5,12 +5,12 @@ export const SITE = {
   address: "г. Энгельс, площадь Ленина, д. 20",
   phone: {
     // Client will provide a real number later — replace the two fields below.
-    display: "+7 (___) ___-__-__",
-    href: "tel:+7",
+    display: "+7 (993) 100-06-03",
+    href: "tel:+79931000603",
   },
   hours: "ежедневно 10:00–20:00",
   socials: {
-    vk: "#",
+    vk: "https://vk.ru/tutpc",
     telegram: "#",
     avito: "#",
   },
