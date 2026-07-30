@@ -24,7 +24,7 @@ export const SITE = {
     // used automatically. Until then, the MAX button falls back to a tel:
     // link labelled with the phone number so users know how to add the contact.
     max: {
-      url: null,
+      url: "https://max.ru/u/f9LHodD0cOJ2ZvbsyiEXNDsJoOXH1dXkB9-RM0btT9Xm_MkZmGWwMBkVRZQ",
       phoneHref: "tel:+79931000603",
       phoneDisplay: "+7 (993) 100-06-03",
     },
