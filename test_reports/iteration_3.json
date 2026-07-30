@@ -1,0 +1,37 @@
+{
+  "summary": "Iteration 3 (frontend narrow re-test). Verified hours propagation (3-line UL in Contacts + Footer, old 'ежедневно 10:00–20:00' string absent on both desktop 1440x900 and mobile 390x844), Telegram/Avito/VK/MAX links and all phone regressions. Backend smoke on POST/GET /api/leads also passes. All targeted checks green.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "detailed_results": {
+    "old_hours_string_removed": {"desktop": "PASS", "mobile": "PASS", "grep_src": "no 'ежедневно' occurrences in /app/frontend/src"},
+    "contacts_hours_list": {"testid": "contacts-hours-list", "items": 3, "content": ["Пн–Пт: 10:00–19:00", "Сб: 10:00–17:00", "Вс: выходной"], "status": "PASS"},
+    "footer_hours_list": {"testid": "footer-hours-list", "items": 3, "content": ["Пн–Пт: 10:00–19:00", "Сб: 10:00–17:00", "Вс: выходной"], "status": "PASS"},
+    "telegram": {"contacts-tg": "https://t.me/pc_tut target=_blank rel='noopener noreferrer' PASS", "footer-tg": "PASS"},
+    "avito": {"contacts-avito": "PASS (href starts with expected brand URL, iid=8196133731 & sellerId present, target=_blank rel=noopener noreferrer)", "footer-avito": "PASS"},
+    "vk": {"contacts-vk": "https://vk.ru/tutpc PASS", "footer-vk": "PASS"},
+    "max_fallback": {
+      "contacts-max": "href=tel:+79931000603, visible text 'MAX: +7 (993) 100-06-03', aria-label='MAX +7 (993) 100-06-03' — PASS",
+      "footer-max": "href=tel:+79931000603, icon-button 'M', title='MAX: +7 (993) 100-06-03', aria-label='MAX +7 (993) 100-06-03' — PASS"
+    },
+    "phone_regressions": {
+      "header-phone-link (desktop)": "tel:+79931000603, '+7 (993) 100-06-03' — PASS",
+      "mobile-phone-link (mobile after opening hamburger)": "tel:+79931000603 — PASS (only rendered inside opened mobile menu, expected)",
+      "contacts-phone-link": "PASS",
+      "footer-phone-link": "PASS"
+    },
+    "backend_smoke": {"POST /api/leads": 201, "GET /api/leads (X-Admin-Token: pktut2025admin)": 200}
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor (not a bug): SITE.hours legacy single-line string ('Пн–Пт: 10:00–19:00 · Сб: 10:00–17:00 · Вс: выходной') is still exported in /app/frontend/src/config/site.js but is not referenced by Contacts.jsx or Footer.jsx anymore. Safe to remove once other usages are confirmed absent (grep shows none)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Admin token: pktut2025admin (as provided in review request)",
+  "seed_data_creation": "Created 1 lead 'TEST_smoke' via POST /api/leads regression smoke; safe to leave or delete",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Iteration 3 verified iteration_2's follow-up: hours 3-line propagation + MAX fallback tel: link + Telegram/Avito updates. All 10 targeted checks pass on desktop 1440x900 and mobile 390x844. Backend unchanged; leads endpoints still healthy. Legacy SITE.hours string still exists in config as unused fallback — cosmetic only.",
+  "rca of the issue": "N/A — no defects found."
+}

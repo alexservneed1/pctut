@@ -8,11 +8,26 @@ export const SITE = {
     display: "+7 (993) 100-06-03",
     href: "tel:+79931000603",
   },
-  hours: "ежедневно 10:00–20:00",
+  hours: "Пн–Пт: 10:00–19:00 · Сб: 10:00–17:00 · Вс: выходной",
+  hoursLines: [
+    { days: "Пн–Пт", time: "10:00–19:00" },
+    { days: "Сб", time: "10:00–17:00" },
+    { days: "Вс", time: "выходной" },
+  ],
   socials: {
     vk: "https://vk.ru/tutpc",
-    telegram: "#",
-    avito: "#",
+    telegram: "https://t.me/pc_tut",
+    avito:
+      "https://www.avito.ru/brands/eb9cc69165a567fa4ad4bf495ced5995/all/bytovaya_elektronika?gdlkerfdnwq=101&page_from=from_item_card_icon&iid=8196133731&sellerId=eb9cc69165a567fa4ad4bf495ced5995",
+    // MAX messenger: no deep-link by phone. When the client sends a personal
+    // link like https://max.ru/u/... — put it into `url` below and it will be
+    // used automatically. Until then, the MAX button falls back to a tel:
+    // link labelled with the phone number so users know how to add the contact.
+    max: {
+      url: null,
+      phoneHref: "tel:+79931000603",
+      phoneDisplay: "+7 (993) 100-06-03",
+    },
   },
   map: {
     // Yandex Maps constructor iframe (no API key required)

@@ -47,6 +47,21 @@ export default function Footer() {
                 <circle cx="17" cy="17" r="3.5" />
               </svg>
             </SocialButton>
+            {SITE.socials.max?.url ? (
+              <SocialButton label="MAX" href={SITE.socials.max.url} testId="footer-max">
+                <span className="text-sm font-extrabold">M</span>
+              </SocialButton>
+            ) : (
+              <a
+                href={SITE.socials.max?.phoneHref || SITE.phone.href}
+                data-testid="footer-max"
+                aria-label={`MAX ${SITE.socials.max?.phoneDisplay || SITE.phone.display}`}
+                title={`MAX: ${SITE.socials.max?.phoneDisplay || SITE.phone.display}`}
+                className="w-10 h-10 inline-flex items-center justify-center rounded-lg border border-white/10 text-[#B7C0CC] hover:text-white hover:border-[#0A84FF]/50 hover:shadow-[0_0_15px_rgba(10,132,255,0.35)] transition-all"
+              >
+                <span className="text-sm font-extrabold">M</span>
+              </a>
+            )}
           </div>
         </div>
 
@@ -66,9 +81,16 @@ export default function Footer() {
             <Phone size={16} className="text-[#0A84FF]" />
             <span>{SITE.phone.display}</span>
           </a>
-          <div className="flex items-center gap-3">
-            <Clock size={16} className="text-[#0A84FF]" />
-            <span>{SITE.hours}</span>
+          <div className="flex items-start gap-3">
+            <Clock size={16} className="mt-0.5 text-[#0A84FF] shrink-0" />
+            <ul className="space-y-1" data-testid="footer-hours-list">
+              {SITE.hoursLines.map((h) => (
+                <li key={h.days} className="flex items-baseline gap-2">
+                  <span className="text-white font-semibold w-14 shrink-0">{h.days}:</span>
+                  <span>{h.time}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 

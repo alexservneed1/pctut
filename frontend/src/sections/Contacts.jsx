@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { MapPin, Phone, Clock, Navigation } from "lucide-react";
+import { MapPin, Phone, Clock, Navigation, MessageCircle } from "lucide-react";
 import { SITE } from "../config/site";
 
 export default function Contacts() {
@@ -64,10 +64,17 @@ export default function Contacts() {
                 <Clock size={20} />
               </span>
               <div>
-                <div className="text-xs font-bold uppercase tracking-[0.14em] text-[#B7C0CC] mb-1">
+                <div className="text-xs font-bold uppercase tracking-[0.14em] text-[#B7C0CC] mb-2">
                   Режим работы
                 </div>
-                <div className="text-white font-semibold">{SITE.hours}</div>
+                <ul className="space-y-1 text-sm" data-testid="contacts-hours-list">
+                  {SITE.hoursLines.map((h) => (
+                    <li key={h.days} className="flex items-baseline gap-2">
+                      <span className="text-white font-semibold w-16 shrink-0">{h.days}:</span>
+                      <span className="text-[#B7C0CC]">{h.time}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
 
@@ -99,6 +106,28 @@ export default function Contacts() {
               >
                 Avito
               </a>
+              {SITE.socials.max?.url ? (
+                <a
+                  href={SITE.socials.max.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="contacts-max"
+                  className="px-4 py-2.5 rounded-lg border border-white/10 hover:border-[#0A84FF]/50 text-sm font-semibold text-white transition-colors inline-flex items-center gap-2"
+                >
+                  <MessageCircle size={16} className="text-[#00A3FF]" />
+                  MAX
+                </a>
+              ) : (
+                <a
+                  href={SITE.socials.max?.phoneHref || SITE.phone.href}
+                  data-testid="contacts-max"
+                  aria-label={`MAX ${SITE.socials.max?.phoneDisplay || SITE.phone.display}`}
+                  className="px-4 py-2.5 rounded-lg border border-white/10 hover:border-[#0A84FF]/50 text-sm font-semibold text-white transition-colors inline-flex items-center gap-2"
+                >
+                  <MessageCircle size={16} className="text-[#00A3FF]" />
+                  MAX: {SITE.socials.max?.phoneDisplay || SITE.phone.display}
+                </a>
+              )}
             </div>
 
             <a
