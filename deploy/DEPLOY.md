@@ -156,121 +156,98 @@ docker compose up -d --build
 docker compose ps
 ```
 
-Все три контейнера должны быть в статусе `Up` (или `healthy`):
+Все контейнеры должны быть в статусе `Up` (или `healthy`):
 
 - `pktut_mongo`
 - `pktut_backend`
 - `pktut_frontend`
+- `pktut_caddy`
 
-Быстрая проверка API:
+Быстрая проверка API (через caddy, порт 80 отдаёт редирект на HTTPS после
+привязки домена — до этого можно проверять напрямую):
 
 ```bash
-curl -s http://127.0.0.1/api/health
+# До DNS/домена — проверяем внутренним curl'ом через frontend-контейнер:
+docker compose exec frontend wget -qO- http://127.0.0.1/api/health
 # Ожидаем: {"status":"healthy"}
 ```
 
-Открыть в браузере: `http://IP_СЕРВЕРА` — должен показаться сайт.
+Открыть в браузере (пока без домена): `http://IP_СЕРВЕРА` — Caddy отдаст сайт.
+После привязки домена (шаг 7) сайт будет по `https://pctut.ru`.
 
 ---
 
-## 7. Привязка домена
+## 7. Привязка домена pctut.ru
 
-1. В панели вашего регистратора домена создайте DNS-запись:
+1. **DNS-записи** — в панели регистратора домена `pctut.ru` создайте:
 
-   | Тип | Имя | Значение |
-   |---|---|---|
-   | A   | `@`   | IP_ВАШЕГО_СЕРВЕРА |
-   | A   | `www` | IP_ВАШЕГО_СЕРВЕРА |
+   | Тип | Имя  | Значение          | TTL |
+   |-----|------|-------------------|-----|
+   | A   | `@`  | IP_ВАШЕГО_СЕРВЕРА | 300 |
+   | A   | `www`| IP_ВАШЕГО_СЕРВЕРА | 300 |
 
-2. Подождите распространения DNS (обычно 5–30 минут). Проверить:
+2. **Проверка распространения DNS** (обычно 5–30 минут):
 
    ```bash
-   dig +short ваш-домен.ru
+   dig +short pctut.ru
+   dig +short www.pctut.ru
+   # Оба должны вернуть IP вашего сервера
    ```
-   Должен вернуть IP сервера.
 
-3. Пропишите домен в `deploy/.env` → `CORS_ORIGINS` и перезапустите backend:
+   Или онлайн: <https://dnschecker.org/#A/pctut.ru>
+
+3. **CORS_ORIGINS** — обновите значение в `deploy/.env`, не трогая остальные строки:
 
    ```bash
-   cd /opt/pktut/deploy
+   cd ~/pktut/deploy
+   sed -i 's|^CORS_ORIGINS=.*|CORS_ORIGINS=https://pctut.ru,https://www.pctut.ru|' .env
+   grep CORS_ORIGINS .env    # проверка
+   ```
+
+4. **Перезапустить backend** (чтобы подхватил новые CORS):
+
+   ```bash
    docker compose up -d --force-recreate backend
    ```
 
 ---
 
-## 8. SSL-сертификат (HTTPS)
+## 8. SSL-сертификат (HTTPS через Caddy)
 
-Самый простой способ — использовать **Caddy** как reverse-proxy на хосте. Caddy автоматически получает и обновляет Let's Encrypt сертификаты. Это удобнее, чем ставить certbot и править nginx.
+**Ничего дополнительно устанавливать не нужно** — сервис `caddy` уже описан
+в `docker-compose.yml` и получает сертификаты автоматически.
 
-### 8.1. Установка Caddy на хосте
+### 8.1. Как это работает
 
-```bash
-apt install -y debian-keyring debian-archive-keyring apt-transport-https
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
-  | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' \
-  | tee /etc/apt/sources.list.d/caddy-stable.list
-apt update
-apt install -y caddy
-```
+- Caddy слушает `:80` и `:443` на хосте.
+- Как только DNS `pctut.ru` → IP сервера начнёт резолвиться, Caddy сам
+  получит сертификаты Let's Encrypt для `pctut.ru` и `www.pctut.ru`
+  (обычно занимает 20–60 секунд после первого HTTPS-запроса).
+- Сертификаты хранятся в docker-volume `caddy_data` — переживают
+  `docker compose down/up` и рестарт сервера.
+- Продление раз в 60 дней — тоже автоматически.
 
-### 8.2. Изменить публикацию портов у docker-compose
-
-Чтобы Caddy на хосте мог занять порты 80/443, а фронт-контейнер должен слушать
-только внутренний порт. Отредактируйте `/opt/pktut/deploy/docker-compose.yml`:
-
-```yaml
-  frontend:
-    ...
-    ports:
-      - "127.0.0.1:8080:80"   # вместо "80:80"
-```
-
-Перезапустите:
+### 8.2. Проверка после DNS
 
 ```bash
-cd /opt/pktut/deploy && docker compose up -d --force-recreate frontend
+# Проверить, что Caddy видит домен и получил сертификат:
+docker compose logs caddy | grep -Ei "obtained|certificate"
+
+# HTTPS-проверка:
+curl -sI https://pctut.ru/ | head -5
+# Ожидаем: HTTP/2 200 (или 301 на www→apex)
 ```
 
-### 8.3. Настроить Caddyfile
+Открыть в браузере: `https://pctut.ru` — должен показаться сайт с зелёным замком.
+`https://www.pctut.ru` — редирект на `https://pctut.ru`.
 
-```bash
-nano /etc/caddy/Caddyfile
-```
+### 8.3. Если сертификат не выпустился
 
-Вставьте (замените домен):
-
-```caddy
-ваш-домен.ru, www.ваш-домен.ru {
-    encode zstd gzip
-    reverse_proxy 127.0.0.1:8080
-}
-```
-
-Перезапустите Caddy:
-
-```bash
-systemctl reload caddy
-```
-
-Caddy сам получит и продлит SSL. Проверьте: `https://ваш-домен.ru` — должен открыться сайт с зелёным замком.
-
-> **Альтернатива**: если хотите остаться на nginx + certbot — вариант описан в комментарии в конце документа.
-
-### 8.4. (Опция) Редирект `www` → корневой домен
-
-В `Caddyfile`:
-
-```caddy
-www.ваш-домен.ru {
-    redir https://ваш-домен.ru{uri} permanent
-}
-
-ваш-домен.ru {
-    encode zstd gzip
-    reverse_proxy 127.0.0.1:8080
-}
-```
+- Убедитесь, что порт 80 доступен снаружи (`ufw allow 80/tcp`, `443/tcp`).
+- Проверьте DNS ещё раз (`dig +short pctut.ru`).
+- Убедитесь, что на порту 80 хоста больше ничего не висит:
+  `ss -ltnp | grep -E ':80|:443'` — должен быть только процесс docker-proxy для контейнера caddy.
+- Логи Caddy: `docker compose logs -f caddy`.
 
 ---
 

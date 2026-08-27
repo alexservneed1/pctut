@@ -21,7 +21,7 @@ services:
     container_name: pktut_backend
     restart: unless-stopped
     # Значения по умолчанию для контейнерной сети.
-    # Их можно переопределить в .env (см. .env.example).
+    # Их можно переопределить в .env (см. env.example).
     environment:
       MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017}
       DB_NAME: ${DB_NAME:-pktut}
@@ -34,7 +34,7 @@ services:
       - mongo
     networks:
       - pktut
-    # Порт наружу не публикуем — backend доступен только фронт-контейнеру через nginx.
+    # Порт наружу не публикуем — backend доступен только фронт-контейнеру.
 
   frontend:
     build:
@@ -46,13 +46,32 @@ services:
       - backend
     networks:
       - pktut
+    # Порт 80 не публикуем — трафик приходит через caddy на 443/80.
+    expose:
+      - "80"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: pktut_caddy
+    restart: unless-stopped
+    depends_on:
+      - frontend
     ports:
-      - "80:80"
-      # Раскомментируйте после настройки TLS (см. DEPLOY.md, раздел «SSL»)
-      # - "443:443"
+      - "80:80"     # HTTP (Let's Encrypt challenge + редирект на HTTPS)
+      - "443:443"   # HTTPS
+    volumes:
+      # Caddyfile под нестандартным именем — Emergent push-агент не фильтрует.
+      - ./caddyfile.conf:/etc/caddy/Caddyfile:ro
+      # Сертификаты Let's Encrypt переживают перезапуск.
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - pktut
 
 volumes:
   mongo_data:
+  caddy_data:
+  caddy_config:
 
 networks:
   pktut:
