@@ -1,0 +1,59 @@
+# docker-compose для production-развёртывания «ПК ТУТ» на VDS.
+# Запуск:   cd /path/to/repo/deploy && docker compose up -d --build
+# Логи:     docker compose logs -f backend
+# Остановка: docker compose down    (данные Mongo сохраняются в volume mongo_data)
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: pktut_mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    # Порт наружу НЕ публикуем — Mongo доступна только внутри docker-сети.
+    networks:
+      - pktut
+
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.backend
+    container_name: pktut_backend
+    restart: unless-stopped
+    # Значения по умолчанию для контейнерной сети.
+    # Их можно переопределить в .env (см. .env.example).
+    environment:
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017}
+      DB_NAME: ${DB_NAME:-pktut}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?ADMIN_TOKEN не задан в .env}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      VK_TOKEN: ${VK_TOKEN:-}
+      VK_PEER_ID: ${VK_PEER_ID:-}
+      VK_API_VERSION: ${VK_API_VERSION:-5.199}
+    depends_on:
+      - mongo
+    networks:
+      - pktut
+    # Порт наружу не публикуем — backend доступен только фронт-контейнеру через nginx.
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.frontend
+    container_name: pktut_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - pktut
+    ports:
+      - "80:80"
+      # Раскомментируйте после настройки TLS (см. DEPLOY.md, раздел «SSL»)
+      # - "443:443"
+
+volumes:
+  mongo_data:
+
+networks:
+  pktut:
+    driver: bridge

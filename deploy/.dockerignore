@@ -1,0 +1,17 @@
+# Игнор для docker build context. Уменьшает размер контекста и ускоряет сборку.
+.git
+.gitignore
+node_modules
+frontend/node_modules
+frontend/build
+backend/__pycache__
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.log
+test_reports
+tests
+memory
+deploy/.env
+.env
+.DS_Store

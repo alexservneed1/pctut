@@ -3,8 +3,8 @@ import axios from "axios";
 import { LogOut, RefreshCw, Shield, CheckCircle2, Clock3 } from "lucide-react";
 import { toast } from "sonner";
 import Logo from "../components/Logo";
+import { API } from "../lib/api";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const LS_KEY = "pktut-admin-token";
 
 function fmtDate(iso) {

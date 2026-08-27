@@ -4,8 +4,7 @@ import axios from "axios";
 import { CheckCircle2, Send, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { SERVICE_OPTIONS } from "../config/site";
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { API } from "../lib/api";
 
 // Format keystrokes into "+7 (XXX) XXX-XX-XX"
 function formatRuPhone(input) {
