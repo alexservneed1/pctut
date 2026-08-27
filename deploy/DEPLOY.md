@@ -117,10 +117,12 @@ cd pktut
 ## 5. Заполнение `.env`
 
 ```bash
-cp deploy/.env.example deploy/.env
+cp deploy/env.example deploy/.env
 nano deploy/.env
 ```
 
+> Файл-шаблон называется `env.example` (без точки в начале) — так как Emergent
+> push-агент фильтрует имя `.env.example` при синхронизации с GitHub.
 Обязательно заполнить:
 
 - `ADMIN_TOKEN` — сгенерируйте длинную случайную строку:

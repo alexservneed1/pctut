@@ -99,5 +99,13 @@ credentials.json
 # yarn.lock нужен для воспроизводимой сборки frontend в docker.
 !frontend/yarn.lock
 
+# Копия yarn.lock под именем, которое НЕ фильтрует push-агент Emergent
+# (сам yarn.lock фильтруется по имени и не попадает в GitHub-репозиторий).
+# Dockerfile.frontend копирует этот файл под именем yarn.lock в контейнере.
+!frontend/yarn-lock-deploy
+
 # Пример конфига для production-развёртывания на VDS (без реальных секретов).
 !deploy/.env.example
+
+# То же самое, но под именем без точки — Emergent фильтр не трогает.
+!deploy/env.example

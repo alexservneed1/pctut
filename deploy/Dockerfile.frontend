@@ -11,7 +11,10 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Ставим зависимости отдельным слоем для кэша.
-COPY frontend/package.json frontend/yarn.lock ./
+# Внимание: используется `yarn-lock-deploy` (копия yarn.lock) вместо `yarn.lock`,
+# т.к. Emergent push-агент фильтрует именно 'yarn.lock' при пуше в GitHub.
+COPY frontend/package.json ./package.json
+COPY frontend/yarn-lock-deploy ./yarn.lock
 RUN yarn install --frozen-lockfile --network-timeout 600000
 
 # Исходники и сборка.
