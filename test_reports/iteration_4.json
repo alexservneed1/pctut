@@ -1,0 +1,20 @@
+{
+  "summary": "Backend-only regression after requirements.txt trim. Verified installed runtime deps match trimmed file, backend RUNNING in supervisor with no ImportError/ModuleNotFound in logs, and full pytest suite (18 tests) passes 100%: /api/health, /api/, /api/openapi.json, POST /api/leads (all 6 services, UUID id, status=new, ISO created_at), validation 422s (empty/whitespace name, short phone, invalid service), GET /api/leads auth (401 no/wrong token, 200 with X-Admin-Token, sorted newest-first, no _id leak), PATCH /api/leads/{id} (401s, 404 unknown id, new<->processed toggle, 422 invalid status). Confirmed Mongo persistence directly via motor and that VK notification is silently skipped with VK_TOKEN/VK_PEER_ID unset (lead creation still 201). Also re-verified `pip install --dry-run --index-url https://pypi.org/simple -r requirements.txt` resolves cleanly from public PyPI, and `import server` + `import httpx/motor` work. Light frontend smoke: GET / => 200, GET /admin => 200.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "requirements.txt has no transitive gaps: starlette/anyio/h11 arrive via fastapi/uvicorn/httpx; dnspython via pymongo. Note motor 3.3.1 pins pymongo>=4.5,<5 so the explicit pymongo==4.6.3 pin is compatible but must be kept in sync on future motor upgrades.",
+    "For production Docker, consider adding a `uvicorn[standard]` extra or explicit gunicorn/worker choice if the client's deployment expects websockets/http-tools; plain uvicorn==0.25.0 is fine for the current REST-only API.",
+    "pytest/requests are prod-image bloat; consider a separate requirements-dev.txt so the client's VPS image stays minimal (non-blocking)."
+  ],
+  "updated_files": ["/app/backend/tests/backend_test.py"],
+  "success_rate": {"backend": "100% (18/18)", "frontend": "smoke only (2/2 routes 200)"},
+  "seed_data_creation": "Created TEST_-prefixed leads during the run; all 38 TEST_ leads deleted afterwards (5 pre-existing non-TEST leads left untouched).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": false,
+  "test_credentials": "Admin token pktut2025admin (header X-Admin-Token), from /app/memory/test_credentials.md",
+  "context_for_next_testing_agent": "Test suite is xdist-parallel (pytest.ini uses -n --dist loadscope); do NOT rely on module-level shared lists across tests. I replaced the shared created_lead_ids dependency in TestPatchLead with a class-scoped own_lead_id fixture that creates its own lead — the two previous failures were purely this xdist state issue, not product bugs. Also added test_health. Run with: cd /app/backend && python -m pytest tests/backend_test.py -v (no extra -p flags, pytest.ini already sets xdist args).",
+  "rca_of_the_issue": "Initial 2 failures (TestPatchLead toggle/invalid-status) were caused by pytest-xdist distributing classes to separate workers, leaving the module-global created_lead_ids empty in the worker running TestPatchLead. Fixed in test code with a class-scoped fixture that creates its own lead. No application regression from the requirements.txt trim was found."
+}

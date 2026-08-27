@@ -44,6 +44,19 @@ def admin_api(api):
     return s
 
 
+
+@pytest.fixture(scope="class")
+def own_lead_id(api):
+    """Create a dedicated lead for this class (xdist-safe, no cross-worker state)."""
+    r = api.post(f"{BASE_URL}/api/leads", json={
+        "name": "TEST_Patch Target",
+        "phone": "9990001122",
+        "service": "апгрейд",
+        "comment": "patch target",
+    }, timeout=15)
+    assert r.status_code == 201, r.text
+    return r.json()["id"]
+
 # =========================================================
 # Health / OpenAPI
 # =========================================================
@@ -54,6 +67,11 @@ class TestHealthAndOpenAPI:
         data = r.json()
         assert "openapi" in data
         assert "/api/leads" in data.get("paths", {})
+
+    def test_health(self, api):
+        r = api.get(f"{BASE_URL}/api/health", timeout=15)
+        assert r.status_code == 200, r.text
+        assert r.json() == {"status": "healthy"}
 
     def test_root(self, api):
         r = api.get(f"{BASE_URL}/api/", timeout=15)
@@ -187,9 +205,8 @@ class TestListLeads:
 # PATCH /api/leads/{id} — status update
 # =========================================================
 class TestPatchLead:
-    def test_patch_requires_token(self, api):
-        # get a real id
-        lead_id = created_lead_ids[0] if created_lead_ids else "nonexistent"
+    def test_patch_requires_token(self, api, own_lead_id):
+        lead_id = own_lead_id
         r = api.patch(
             f"{BASE_URL}/api/leads/{lead_id}",
             json={"status": "processed"},
@@ -197,8 +214,8 @@ class TestPatchLead:
         )
         assert r.status_code == 401
 
-    def test_patch_wrong_token(self, api):
-        lead_id = created_lead_ids[0] if created_lead_ids else "nonexistent"
+    def test_patch_wrong_token(self, api, own_lead_id):
+        lead_id = own_lead_id
         r = api.patch(
             f"{BASE_URL}/api/leads/{lead_id}",
             json={"status": "processed"},
@@ -207,9 +224,8 @@ class TestPatchLead:
         )
         assert r.status_code == 401
 
-    def test_patch_toggle_new_to_processed_and_back(self, admin_api):
-        assert created_lead_ids, "No leads created earlier — cannot patch"
-        lead_id = created_lead_ids[0]
+    def test_patch_toggle_new_to_processed_and_back(self, admin_api, own_lead_id):
+        lead_id = own_lead_id
 
         r = admin_api.patch(
             f"{BASE_URL}/api/leads/{lead_id}",
@@ -236,10 +252,9 @@ class TestPatchLead:
         )
         assert r.status_code == 404
 
-    def test_patch_invalid_status(self, admin_api):
-        assert created_lead_ids
+    def test_patch_invalid_status(self, admin_api, own_lead_id):
         r = admin_api.patch(
-            f"{BASE_URL}/api/leads/{created_lead_ids[0]}",
+            f"{BASE_URL}/api/leads/{own_lead_id}",
             json={"status": "archived"},
             timeout=15,
         )
