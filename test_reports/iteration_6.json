@@ -1,0 +1,28 @@
+{
+  "summary": "Verified Yandex.Webmaster ownership verification (code f16f1f4b66bcd604) via both methods + full regression. Created /app/backend/tests/test_yandex_verification.py (8 tests). Full backend suite: 26/26 passed. Playwright runtime verification on the public preview URL: yandex meta tag present in <head>, static verification file served with correct body and NOT swallowed by SPA fallback, Metrika (window.ym + mc.yandex.ru/metrika/tag.js) and GA4 (window.gtag + gtag/js?id=G-KGLEKRJCB3) intact, zero console errors, /admin login with token works, lead form submits end-to-end. nginx.conf reviewed. All 6 requested items PASS.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": { "ui_bugs": [], "integration_issues": [], "design_issues": [] },
+  "test_report_links": [
+    "/app/backend/tests/test_yandex_verification.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "nginx.conf L78-80 `location / { try_files $uri $uri/ /index.html; }` is correct — .html is NOT captured by the asset regex block (L65 lists only ico|png|jpg|jpeg|gif|webp|svg|woff2?|ttf|otf|eot), so /yandex_f16f1f4b66bcd604.html resolves as a real file from the html root before the SPA fallback. Production behaviour will match preview.",
+    "Non-blocking: yandex_f16f1f4b66bcd604.html has no <!doctype html>; this matches Yandex's own generated file format and the crawler only greps the 'Verification: <code>' substring, so no change needed.",
+    "Non-blocking: no cache-control header applies to /yandex_*.html in nginx (only /index.html and asset regex get one). Harmless, but adding no-cache would prevent a stale copy if the code is ever rotated.",
+    "There is no DELETE /api/leads/{id} endpoint — QA cleanup must go through /app/tests/cleanup_leads.py (direct Mongo). Test file updated to use that instead of a non-existent DELETE call."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_yandex_verification.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "success_rate": { "backend": "100% (26/26)", "frontend": "100%" },
+  "seed_data_creation": "1 API lead (TEST_yandex_qa) + 1 UI lead (TEST_ui_yandex) created and deleted; ran /app/tests/cleanup_leads.py (deleted 12 stale TEST_ leads). Verified 0 TEST_ leads remain, 9 genuine leads untouched.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": false,
+  "test_credentials": "Admin token pktut2025admin (X-Admin-Token header) — verified working via UI login and GET /api/leads",
+  "context_for_next_testing_agent": "Yandex verification is fully validated (file + meta). Regression suite lives at /app/backend/tests/ (backend_test.py + test_yandex_verification.py, 26 tests, all green). pytest.ini forces xdist -n --dist loadscope, so don't pass -p no:xdist. Lead cleanup: python /app/tests/cleanup_leads.py (no DELETE API). Baseline non-test lead count = 9.",
+  "rca_of_the_issue": "N/A — no defects found. Confirmed the static file is served by CRA dev-server/ingress before the SPA fallback (response contains the plain markup and no <div id=\"root\">); the only extra content in the body is the preview-only Cloudflare challenge script, which does not affect the 'Verification: f16f1f4b66bcd604' substring Yandex greps for."
+}
