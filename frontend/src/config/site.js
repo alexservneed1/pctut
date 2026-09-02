@@ -87,5 +87,5 @@ export const SERVICE_OPTIONS = [
 // --------------------------------------------------------------------------
 export const ANALYTICS = {
   yandexMetrikaId: "112190326",
-  googleAnalyticsId: "",
+  googleAnalyticsId: "G-KGLEKRJCB3",
 };
