@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { MapPin, Phone, Clock, Navigation, MessageCircle } from "lucide-react";
 import { SITE } from "../config/site";
+import { trackGoal } from "../lib/analytics";
 
 export default function Contacts() {
   return (
@@ -45,6 +46,7 @@ export default function Contacts() {
 
             <a
               href={SITE.phone.href}
+              onClick={() => trackGoal("phone_click")}
               data-testid="contacts-phone-link"
               className="rounded-2xl bg-[#151A22] border border-white/10 p-6 flex gap-4 hover:border-[#0A84FF]/45 transition-colors"
             >

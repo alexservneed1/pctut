@@ -2,6 +2,7 @@ import React from "react";
 import { MapPin, Phone, Clock } from "lucide-react";
 import Logo from "./Logo";
 import { SITE } from "../config/site";
+import { trackGoal } from "../lib/analytics";
 
 const SocialButton = ({ label, href, testId, children }) => (
   <a
@@ -75,6 +76,7 @@ export default function Footer() {
           </div>
           <a
             href={SITE.phone.href}
+            onClick={() => trackGoal("phone_click")}
             data-testid="footer-phone-link"
             className="flex items-center gap-3 hover:text-white transition-colors"
           >

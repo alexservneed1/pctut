@@ -70,3 +70,22 @@ export const SERVICE_OPTIONS = [
   "установка Windows",
   "консультация",
 ];
+
+// --------------------------------------------------------------------------
+// Аналитика — вставляется автоматически, если ID заполнены.
+// Пустая строка = счётчик выключен, ничего не грузится.
+// Как включить:
+//   1. Создайте счётчики в Яндекс.Метрика (https://metrika.yandex.ru) и/или
+//      Google Analytics 4 (https://analytics.google.com).
+//   2. Скопируйте ID и вставьте ниже:
+//        yandexMetrikaId:  "12345678"                (только цифры)
+//        googleAnalyticsId: "G-XXXXXXXXXX"           (формат G-...)
+//   3. Save to GitHub → на VPS: git pull && docker compose up -d --build frontend
+//   4. В интерфейсе Метрики создайте JavaScript-цели с идентификаторами:
+//        lead_submit  — отправка заявки с формы
+//        phone_click  — клик по номеру телефона в шапке/контактах/футере
+// --------------------------------------------------------------------------
+export const ANALYTICS = {
+  yandexMetrikaId: "",
+  googleAnalyticsId: "",
+};

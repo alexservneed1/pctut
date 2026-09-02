@@ -5,6 +5,7 @@ import { CheckCircle2, Send, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { SERVICE_OPTIONS } from "../config/site";
 import { API } from "../lib/api";
+import { trackGoal } from "../lib/analytics";
 
 // Format keystrokes into "+7 (XXX) XXX-XX-XX"
 function formatRuPhone(input) {
@@ -74,6 +75,7 @@ export default function LeadForm() {
       setComment("");
       setService(SERVICE_OPTIONS[0]);
       toast.success("Заявка отправлена!");
+      trackGoal("lead_submit");
     } catch (err) {
       console.error(err);
       toast.error("Не удалось отправить заявку. Попробуйте позже или позвоните нам.");

@@ -3,6 +3,7 @@ import { Menu, X, Phone } from "lucide-react";
 import Logo from "./Logo";
 import { NAV_LINKS, SITE } from "../config/site";
 import { scrollToId } from "../lib/scroll";
+import { trackGoal } from "../lib/analytics";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -64,6 +65,7 @@ export default function Header() {
           <div className="hidden md:flex items-center gap-3">
             <a
               href={SITE.phone.href}
+              onClick={() => trackGoal("phone_click")}
               data-testid="header-phone-link"
               className="hidden xl:inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-[#00A3FF] transition-colors"
             >

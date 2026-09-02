@@ -1,10 +1,16 @@
 import "@/App.css";
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import Landing from "@/pages/Landing";
 import Admin from "@/pages/Admin";
+import { initAnalytics } from "@/lib/analytics";
 
 function App() {
+  useEffect(() => {
+    initAnalytics();
+  }, []);
+
   return (
     <div className="App">
       <BrowserRouter>
