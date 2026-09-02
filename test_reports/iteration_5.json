@@ -1,0 +1,35 @@
+{
+  "summary": "Verified Yandex.Metrika counter 112190326 enablement (all 8 requested items) plus backend/admin regression. Frontend: window.ym is a function, https://mc.yandex.ru/metrika/tag.js loaded with HTTP 200, and window.ym.a[0] = ['112190326','init',{ssr:true, webvisor:true, clickmap:true, ecommerce:'dataLayer', accurateTrackBounce:true, trackLinks:true, referrer:'' (string, direct nav), url:'https://pc-build-engels.preview.emergentagent.com/'}] — every required key present and correct. GA4 confirmed NOT loaded (window.gtag undefined, window.dataLayer undefined, zero googletagmanager.com / google-analytics.com requests). Goals verified individually by diffing window.ym.a before/after each action: header-phone-link, contacts-phone-link, footer-phone-link each pushed exactly ['112190326','reachGoal','phone_click']; lead form submit ('Metrika QA' / +7 (993) 000-00-00) showed lead-form-success and pushed ['112190326','reachGoal','lead_submit']. Lead persisted — GET /api/leads with X-Admin-Token returned it (uuid id, status=new, no _id leak). Console clean: only a Chromium WebGL/GPU stall warning, zero analytics errors; unrelated mc.yandex.com/watch/44120344 hits come from the embedded Yandex Maps widget as expected. Backend regression: full pytest suite 18/18 passed (health, root, openapi, POST /api/leads all 6 services, 422 validation for empty/whitespace name, short phone, invalid service, GET /api/leads 401 without token, PATCH toggle + 404/422 cases). /admin loads, accepts token pktut2025admin, renders admin-leads-table with 17 rows including 'Metrika QA', and status toggle worked новая -> обработана -> новая via PATCH.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Landing header / Admin header (1920x1080)",
+        "issues": ["Sonner toast (top-right) overlays the header CTA 'Получить консультацию' on landing and the 'Выйти' button on /admin while visible; purely cosmetic, buttons become clickable again after the toast auto-dismisses"]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml",
+    "/app/tests/cleanup_leads.py"
+  ],
+  "action_items": [
+    "OPTIONAL (low priority): the noscript pixel in analytics.js is inert. Because the <noscript> node is created at runtime and filled via innerHTML, the browser stores the markup as TEXT (verified: noscript.textContent === '<div><img src=\"https://mc.yandex.ru/watch/112190326\" ...></div>', and noscript.querySelector('img') === null). A dynamically injected noscript can never help a no-JS client anyway. If no-JS tracking coverage is wanted, move the static noscript pixel into /app/frontend/public/index.html instead."
+  ],
+  "critical_code_review_comments": [
+    "analytics.js: initAnalytics is guarded by an `initialized` flag and the snippet also de-dupes by scanning document.scripts for the tag.js src, so React StrictMode double-effect cannot double-load the counter — verified only one tag.js request on load.",
+    "trackGoal swallows exceptions and checks typeof window.ym === 'function' before calling, so analytics can never break the page — good.",
+    "Runtime-created <noscript> + innerHTML yields a text node, not an element subtree; this is a no-op path (see action item)."
+  ],
+  "updated_files": ["/app/tests/cleanup_leads.py"],
+  "success_rate": { "backend": "100%", "frontend": "100%" },
+  "seed_data_creation": "Created one lead 'Metrika QA' (+7 (993) 000-00-00, сборка ПК) to validate the lead_submit goal; deleted afterwards. Also removed 10 stale QA leads (9 leftover TEST_* leads from earlier iterations that iteration_4 reported as cleaned but were still present, plus 'Metrika QA') via /app/tests/cleanup_leads.py. 7 non-QA leads remain untouched.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "Admin token: pktut2025admin (header X-Admin-Token / /admin login form)",
+  "context_for_next_testing_agent": "Metrika 112190326 is live and fully verified; GA4 intentionally disabled (empty ID). To inspect the command queue use page.evaluate on window.ym.a and convert with Array.from(window.ym.a).map(a=>Array.from(a)) (arguments objects are not JSON-serializable as-is); wait ~3s after load. Diff the queue length before/after an action instead of matching the whole array. tel: links navigate — attach a capture-phase click listener calling preventDefault before clicking phone links. Ignore mc.yandex.com/watch/44120344 and /watch/3 (Yandex Maps widget internals) and Chromium WebGL warnings. On /admin, wait for [data-testid='admin-leads-table'] AND then for [data-testid^='admin-lead-row-'] to have count>0 — the table element renders slightly before the rows. Use /app/tests/cleanup_leads.py to purge TEST_* leads. pytest.ini runs xdist -n 2 --dist loadscope; do not share module-level state across test classes.",
+  "rca_of_the_issue": "No defects found. The only observation (inert noscript pixel) is a browser HTML-parsing characteristic: when scripting is enabled, content assigned to a <noscript> element's innerHTML is parsed as raw text rather than as elements, so no <img> child exists. It has zero functional impact since JS-disabled clients never execute initAnalytics; fixing it requires a static noscript block in public/index.html."
+}

@@ -33,10 +33,14 @@ const injectYandexMetrika = (id) => {
   /* eslint-enable */
 
   window.ym(id, "init", {
-    clickmap: true,
-    trackLinks: true,
-    accurateTrackBounce: true,
+    ssr: true,
     webvisor: true,
+    clickmap: true,
+    ecommerce: "dataLayer",
+    accurateTrackBounce: true,
+    trackLinks: true,
+    referrer: document.referrer,
+    url: location.href,
   });
 
   // noscript-пиксель для клиентов без JS.

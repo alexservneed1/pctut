@@ -86,6 +86,6 @@ export const SERVICE_OPTIONS = [
 //        phone_click  — клик по номеру телефона в шапке/контактах/футере
 // --------------------------------------------------------------------------
 export const ANALYTICS = {
-  yandexMetrikaId: "",
+  yandexMetrikaId: "112190326",
   googleAnalyticsId: "",
 };
