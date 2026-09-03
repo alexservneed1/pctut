@@ -32,8 +32,11 @@ const injectYandexMetrika = (id) => {
   })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
   /* eslint-enable */
 
-  window.ym(id, "init", {
-    ssr: true,
+  // ВАЖНО: id ДОЛЖЕН быть числом. tag.js Метрики молча игнорирует вызовы
+  // со строковым id (не шлёт /watch/, getCounters() пустой). См. docs/history.
+  const numericId = Number(id);
+
+  window.ym(numericId, "init", {
     webvisor: true,
     clickmap: true,
     ecommerce: "dataLayer",
@@ -46,7 +49,7 @@ const injectYandexMetrika = (id) => {
   // noscript-пиксель для клиентов без JS.
   const ns = document.createElement("noscript");
   ns.innerHTML =
-    `<div><img src="https://mc.yandex.ru/watch/${id}" ` +
+    `<div><img src="https://mc.yandex.ru/watch/${numericId}" ` +
     `style="position:absolute;left:-9999px" alt="" /></div>`;
   document.body.appendChild(ns);
 };
@@ -87,7 +90,8 @@ export const trackGoal = (name) => {
   if (!name || typeof window === "undefined") return;
   try {
     if (ANALYTICS.yandexMetrikaId && typeof window.ym === "function") {
-      window.ym(ANALYTICS.yandexMetrikaId, "reachGoal", name);
+      // id обязан быть числом — иначе tag.js молча игнорирует вызов.
+      window.ym(Number(ANALYTICS.yandexMetrikaId), "reachGoal", name);
     }
     if (ANALYTICS.googleAnalyticsId && typeof window.gtag === "function") {
       window.gtag("event", name);
